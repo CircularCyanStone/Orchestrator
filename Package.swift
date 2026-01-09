@@ -14,8 +14,8 @@ let package = Package(
         // Products define the executables and libraries a package produces, making them visible to other packages.
         .library(
             name: "CooOrchestrator",
-            type: .dynamic,
             targets: ["CooOrchestrator"]),
+        .library(name: "CooOrchestrator-dynamic", type: .dynamic, targets: ["CooOrchestrator"])
     ],
     dependencies: [
         // Depend on the latest Swift 5.9 syntax
