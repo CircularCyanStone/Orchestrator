@@ -11,7 +11,7 @@ import UIKit
 /// - 开发者可以选择遵守此协议，直接实现对应的生命周期方法，而无需在 `register` 中手动 switch event。
 /// - 所有方法均返回 `OhResult`，支持责任链控制（如阻断后续服务）。
 /// - 注意：此协议不继承 `OhService`，需显式遵守 `OhService` 协议并手动注册感兴趣的事件。
-public protocol OhApplicationObserver: Sendable {
+@MainActor public protocol OhApplicationObserver: Sendable {
     // MARK: - App Life Cycle
     
     /// App 启动完成 (didFinishLaunchingWithOptions)
