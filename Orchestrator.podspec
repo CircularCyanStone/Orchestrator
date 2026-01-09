@@ -10,7 +10,7 @@
 #
 
 Pod::Spec.new do |s|
-  s.name             = 'Orchestrator'
+  s.name             = 'CooOrchestrator'
   s.version          = '0.0.2'
   s.summary          = '一个用于模块化管理应用生命周期与服务分发的编排框架。'
 
@@ -28,8 +28,8 @@ Pod::Spec.new do |s|
   s.ios.deployment_target = '13.0'
   s.swift_versions = ['5.0']
 
-  s.source_files = 'Sources/Orchestrator/**/*.{h, swift}'
+  s.source_files = 'Sources/CooOrchestrator/**/*.{h, swift}'
   s.exclude_files = 'Sources/CooOrchestrator/macros/**/*'
-  s.public_header_files = 'Sources/Orchestrator/**/CooOrchestrator.h'
+  s.public_header_files = 'Sources/CooOrchestrator/**/CooOrchestrator.h'
   
 end

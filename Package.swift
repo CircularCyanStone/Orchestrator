@@ -5,7 +5,7 @@ import PackageDescription
 import CompilerPluginSupport
 
 let package = Package(
-    name: "Orchestrator",
+    name: "CooOrchestrator",
     platforms: [
         .macOS(.v10_15),
         .iOS(.v13)
@@ -13,9 +13,9 @@ let package = Package(
     products: [
         // Products define the executables and libraries a package produces, making them visible to other packages.
         .library(
-            name: "Orchestrator",
+            name: "CooOrchestrator",
             type: .dynamic,
-            targets: ["Orchestrator"]),
+            targets: ["CooOrchestrator"]),
     ],
     dependencies: [
         // Depend on the latest Swift 5.9 syntax
@@ -32,14 +32,14 @@ let package = Package(
             ]
         ),
         .target(
-            name: "Orchestrator",
+            name: "CooOrchestrator",
             dependencies: ["CooOrchestratorMacros"],
             swiftSettings: [.enableExperimentalFeature("SymbolLinkageMarkers")],
         ),
         .testTarget(
             name: "CooOrchestratorTests",
             dependencies: [
-                "Orchestrator",
+                "CooOrchestrator",
                 .product(name: "SwiftSyntaxMacrosTestSupport", package: "swift-syntax"),
             ],
             swiftSettings: [

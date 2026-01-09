@@ -94,11 +94,10 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				CooOrchestratorMacros/CooOrchestratorMacros.swift,
-				Orchestrator/macros/Macros.swift,
 			);
 			publicHeaders = (
-				Orchestrator/CooOrchestrator.h,
-				Orchestrator/loaders/ocMacros/OhRegistrationMacros.h,
+				CooOrchestrator/CooOrchestrator.h,
+				CooOrchestrator/loaders/ocMacros/OhRegistrationMacros.h,
 			);
 			target = FBD17C8A2EF3D61900C9CDB2 /* CooOrchestrator */;
 		};
