@@ -9,8 +9,10 @@ import SwiftCompilerPlugin
 import SwiftSyntaxMacros
 
 @main
-struct CooOrchestratorPlugin: CompilerPlugin {
-    let providingMacros: [Macro.Type] = [
+public struct CooOrchestratorPlugin: CompilerPlugin {
+    public let providingMacros: [Macro.Type] = [
         OhRegisterServiceMacro.self
     ]
+    
+    public init() {}
 }
