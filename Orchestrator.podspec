@@ -10,8 +10,8 @@
 #
 
 Pod::Spec.new do |s|
-  s.name             = 'CooOrchestrator'
-  s.version          = '0.1.0'
+  s.name             = 'Orchestrator'
+  s.version          = '0.0.2'
   s.summary          = '一个用于模块化管理应用生命周期与服务分发的编排框架。'
 
   s.description      = <<-DESC
@@ -20,22 +20,20 @@ Pod::Spec.new do |s|
                        支持多线程安全调度。
                        DESC
 
-  s.homepage         = 'https://github.com/CircularCyanStone/CooOrchestrator'
+  s.homepage         = 'https://github.com/CircularCyanStone/Orchestrator'
   s.license          = { :type => 'MIT', :file => 'LICENSE' }
-  s.author           = { 'Coo' => 'coo@example.com' }
-  s.source           = { :git => 'https://github.com/CircularCyanStone/CooOrchestrator.git', :tag => s.version.to_s }
+  s.author           = { 'coocy' => 'coo@example.com' }
+  s.source           = { :git => 'https://github.com/CircularCyanStone/Orchestrator.git', :tag => s.version.to_s }
 
   s.ios.deployment_target = '13.0'
-  s.swift_version = '5.9'
+  s.swift_version = '5.5'
 
-  s.source_files = 'Sources/CooOrchestrator/**/*'
+  s.source_files = 'Sources/Orchestrator/**/*.{h, swift}'
   
   # 排除 Swift Macros 相关的代码配置，因为 Cocoapods 不支持
   s.exclude_files = 'Sources/CooOrchestrator/macros/**/*'
   
   # 如果项目中有 Objective-C 头文件需要公开，可以在这里指定
-  # s.public_header_files = 'Sources/CooOrchestrator/**/*.h'
+  s.public_header_files = 'Sources/Orchestrator/**/CooOrchestrator.h'
   
-  # 依赖配置
-  # s.dependency 'SomeOtherPod'
 end
