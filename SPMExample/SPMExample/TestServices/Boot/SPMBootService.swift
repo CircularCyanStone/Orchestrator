@@ -9,10 +9,12 @@ import UIKit
 import CooOrchestrator
 
 @OrchService()
-final class SPMBootService: OhService, OhSceneObserver {
+final class SPMBootService: OhService {
     static func register(in registry: CooOrchestrator.OhRegistry<SPMBootService>) {
         addScene(.sceneWillConnect, in: registry)
     }
+}
+extension SPMBootService: OhSceneObserver {
     
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions, context: OhContext) -> OhResult {
         
@@ -29,7 +31,6 @@ final class SPMBootService: OhService, OhSceneObserver {
         sceneDelegate?.window?.makeKeyAndVisible()
         return .stop()
     }
-
 }
 
 @OrchService()

@@ -7,8 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		65682A5C2F011E4A001D0057 /* CooOrchestrator in Frameworks */ = {isa = PBXBuildFile; productRef = 65682A5B2F011E4A001D0057 /* CooOrchestrator */; };
-		65682A5D2F011E50001D0057 /* CooOrchestrator in Embed Frameworks */ = {isa = PBXBuildFile; productRef = 65682A5B2F011E4A001D0057 /* CooOrchestrator */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		FB059C0D2F11114F006CB334 /* CooOrchestrator in Frameworks */ = {isa = PBXBuildFile; productRef = FB059C0C2F11114F006CB334 /* CooOrchestrator */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -18,7 +17,6 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				65682A5D2F011E50001D0057 /* CooOrchestrator in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -55,7 +53,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				65682A5C2F011E4A001D0057 /* CooOrchestrator in Frameworks */,
+				FB059C0D2F11114F006CB334 /* CooOrchestrator in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -100,6 +98,7 @@
 			name = SPMExample;
 			packageProductDependencies = (
 				65682A5B2F011E4A001D0057 /* CooOrchestrator */,
+				FB059C0C2F11114F006CB334 /* CooOrchestrator */,
 			);
 			productName = SPMExample;
 			productReference = 656FE2632F0021B8000B7AD2 /* SPMExample.app */;
@@ -130,7 +129,7 @@
 			mainGroup = 656FE25A2F0021B8000B7AD2;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				65682A5A2F011E4A001D0057 /* XCLocalSwiftPackageReference "../../CooOrchestrator" */,
+				FB059C0B2F11114F006CB334 /* XCLocalSwiftPackageReference "../../CooOrchestrator" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 656FE2642F0021B8000B7AD2 /* Products */;
@@ -378,7 +377,7 @@
 /* End XCConfigurationList section */
 
 /* Begin XCLocalSwiftPackageReference section */
-		65682A5A2F011E4A001D0057 /* XCLocalSwiftPackageReference "../../CooOrchestrator" */ = {
+		FB059C0B2F11114F006CB334 /* XCLocalSwiftPackageReference "../../CooOrchestrator" */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = ../../CooOrchestrator;
 		};
@@ -386,6 +385,10 @@
 
 /* Begin XCSwiftPackageProductDependency section */
 		65682A5B2F011E4A001D0057 /* CooOrchestrator */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = CooOrchestrator;
+		};
+		FB059C0C2F11114F006CB334 /* CooOrchestrator */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = CooOrchestrator;
 		};

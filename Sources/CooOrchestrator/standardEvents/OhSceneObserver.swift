@@ -54,9 +54,11 @@ import UIKit
 public extension OhSceneObserver {
     
     // MARK: Default Implementations
-    static func addScene<Service: OhService & OhSceneObserver>(_ event: OhEvent, in registry: OhRegistry<Service>) {
+    nonisolated static func addScene<Service: OhService & OhSceneObserver>(_ event: OhEvent, in registry: OhRegistry<Service>) {
         registry.add(event) { s, c in
-            try s.dispatchSceneEvent(c)
+            return try MainActor.assumeIsolated {
+                try s.dispatchSceneEvent(c)
+            }
         }
     }
     
