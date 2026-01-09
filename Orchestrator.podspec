@@ -26,14 +26,10 @@ Pod::Spec.new do |s|
   s.source           = { :git => 'https://github.com/CircularCyanStone/Orchestrator.git', :tag => s.version.to_s }
 
   s.ios.deployment_target = '13.0'
-  s.swift_version = '5.5'
+  s.swift_versions = ['5.0']
 
   s.source_files = 'Sources/Orchestrator/**/*.{h, swift}'
-  
-  # 排除 Swift Macros 相关的代码配置，因为 Cocoapods 不支持
   s.exclude_files = 'Sources/CooOrchestrator/macros/**/*'
-  
-  # 如果项目中有 Objective-C 头文件需要公开，可以在这里指定
   s.public_header_files = 'Sources/Orchestrator/**/CooOrchestrator.h'
   
 end

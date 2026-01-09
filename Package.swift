@@ -46,5 +46,9 @@ let package = Package(
                 .enableExperimentalFeature("SymbolLinkageMarkers")
             ]
         ),
+    ],
+    swiftLanguageVersions: [
+        .v5,
+        .version("6")
     ]
 )
