@@ -87,9 +87,11 @@ import UIKit
 public extension OhApplicationObserver {
     
     // MARK: Default Implementations (Return .continue())
-    static func addApplication<Service: OhService & OhApplicationObserver>(_ event: OhEvent, in registry: OhRegistry<Service>) {
+    nonisolated static func addApplication<Service: OhService & OhApplicationObserver>(_ event: OhEvent, in registry: OhRegistry<Service>) {
         registry.add(event) { s, c in
-            try s.dispatchApplicationEvent(c)
+            return try MainActor.assumeIsolated {
+                return try s.dispatchApplicationEvent(c)
+            }
         }
     }
     

@@ -7,11 +7,11 @@
 
 import UIKit
 
-/// 默认的 AppDelegate 实现，提供标准生命周期事件的转发。
-/// - 开发者可以继承此类，并根据需要重写相关方法。
-/// - 注意：此类仅转发 `OhAppDelegateEvents` 中定义的标准系统事件。
+/// 传统的 AppDelegate 实现（不支持 Scene 多窗口）
+/// - 适用于老旧项目或明确不需要 Scene 支持的项目。
+/// - 如果你的项目不需要多窗口支持，且希望保持传统的生命周期，请继承此类。
 /// - Important: 子类重写方法时，**必须调用 super** 以确保生命周期事件正确分发。
-open class OhAppDelegate: UIResponder, UIApplicationDelegate {
+open class OhLegacyAppDelegate: UIResponder, UIApplicationDelegate {
         
     
     /// 定义服务加载器
@@ -151,6 +151,14 @@ open class OhAppDelegate: UIResponder, UIApplicationDelegate {
         ]
         Orchestrator.fire(.didReceiveRemoteNotification, parameters: params)
     }
+}
+
+/// 默认的 AppDelegate 实现，提供标准生命周期事件的转发（支持 Scene 多窗口）。
+/// - 开发者可以继承此类，并根据需要重写相关方法。
+/// - 如果你的项目不需要多窗口支持，请考虑继承 `OhLegacyAppDelegate`。
+/// - 注意：此类仅转发 `OhAppDelegateEvents` 中定义的标准系统事件。
+/// - Important: 子类重写方法时，**必须调用 super** 以确保生命周期事件正确分发。
+open class OhAppDelegate: OhLegacyAppDelegate {
     
     // MARK: - Scene Session
     
