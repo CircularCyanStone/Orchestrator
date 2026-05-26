@@ -1,6 +1,15 @@
 {
-  "originHash" : "97a57af49917345dd9d81162c2653b50c38c1597dc55cea1b1385b370aef5030",
+  "originHash" : "a79483946966eeaab140afc9e8ad5b0c492c51e4234f6e0f101baf05abd872bd",
   "pins" : [
+    {
+      "identity" : "orchestrator",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/CircularCyanStone/Orchestrator",
+      "state" : {
+        "revision" : "1761ce0dc87597dcbc2db6d3c84900536aaf40cd",
+        "version" : "0.0.9"
+      }
+    },
     {
       "identity" : "swift-syntax",
       "kind" : "remoteSourceControl",
