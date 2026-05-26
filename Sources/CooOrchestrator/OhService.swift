@@ -66,6 +66,9 @@ public protocol OhService: AnyObject,Sendable {
     
     /// 注册服务感兴趣的事件
     /// - Parameter registry: 注册表容器
+    /// - Warning: 此方法在框架内部锁保护下执行，仅用于添加事件闭包。
+    ///   不要在此方法中执行耗时操作（如文件 I/O、网络请求、复杂计算），
+    ///   否则会阻塞整个编排器的状态访问。闭包内的逻辑不会在此处执行，仅被存储。
     static func register(in registry: OhRegistry<Self>)
     
     /// 服务实例创建完成后的回调，主线程回调

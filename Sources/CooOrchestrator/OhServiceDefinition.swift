@@ -45,7 +45,7 @@ public struct OhServiceDefinition: @unchecked Sendable, CustomDebugStringConvert
             serviceClass: \(NSStringFromClass(serviceClass))
             factoryClass: \(factoryClass != nil ? NSStringFromClass(factoryClass!) : "")
             priority: \(String(describing: priority?.rawValue))
-            retentionPolicy: \(retentionPolicy == .hold ? "hold" : "destory")
+            retentionPolicy: \(retentionPolicy == .hold ? "hold" : "destroy")
             args: \(args)
         """
     }

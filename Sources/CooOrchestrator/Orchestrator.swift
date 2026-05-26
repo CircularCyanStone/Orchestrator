@@ -325,12 +325,21 @@ public final class Orchestrator: @unchecked Sendable {
         return service
     }
     
+    /// 合并服务定义，多线程安全都是由工具内部调用方保证的，并且只在工具内部使用。
+    /// - Note: 此方法在调用者持有的锁内执行。内部会调用 `collectHandlers` 触发用户实现的 `register(in:)`。
+    ///   由于 `register` 的设计意图是轻量的事件闭包注册（数组追加，微秒级），
+    ///   将其保留在锁内可以保持 merge 过程的原子性和代码清晰度。
+    ///   如果未来服务数量显著增长或 `register` 出现耗时场景，再考虑拆分为两阶段。
+    /// - Parameter items: 新传入的服务定义
+    /// - Returns: 需要急切加载的服务描述符（isLazy=false 且 retention=hold）
     private func mergeDefinitions(_ items: [OhServiceDefinition]) -> [OhServiceDefinition] {
         let start = CFAbsoluteTimeGetCurrent()
         // 1. 批量解析类型，避免在循环中多次调用 NSClassFromString
         // 同时过滤掉已经注册过的类（假设类维度去重是业务需求）
         
         var entriesToInsert: [OhEvent: [ResolvedServiceEntry]] = [:]
+        
+        /// 目标定义
         var eagerDefinitions: [OhServiceDefinition] = []
         
         // [Debug Log] 输出当前批次扫描到的所有类名
