@@ -11,7 +11,7 @@
 
 Pod::Spec.new do |s|
   s.name             = 'CooOrchestrator'
-  s.version          = '0.0.10'
+  s.version          = '0.0.11'
   s.summary          = '一个用于模块化管理应用生命周期与服务分发的编排框架。'
 
   s.description      = <<-DESC
@@ -28,8 +28,18 @@ Pod::Spec.new do |s|
   s.ios.deployment_target = '13.0'
   s.swift_versions = ['5.0']
 
-  s.source_files = 'Sources/CooOrchestrator/**/*.{h, swift}'
-  s.exclude_files = 'Sources/CooOrchestrator/macros/**/*'
-  s.public_header_files = 'Sources/CooOrchestrator/**/CooOrchestrator.h'
-  
+  s.source_files = 'Sources/CooOrchestrator/**/*.{h,swift}'
+
+  # 排除 Swift 宏相关文件（CocoaPods 不支持 Swift 宏插件）
+  s.exclude_files = [
+    'Sources/CooOrchestrator/macros/**/*',
+    'Sources/CooOrchestrator/serviceLoaders/OhSwiftSectionLoader.swift'
+  ]
+
+  s.public_header_files = 'Sources/CooOrchestrator/**/*.h'
+
+  s.pod_target_xcconfig = {
+    'SWIFT_ACTIVE_COMPILATION_CONDITIONS' => '$(inherited) COCOAPODS'
+  }
+
 end

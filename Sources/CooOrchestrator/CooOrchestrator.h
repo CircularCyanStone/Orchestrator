@@ -8,6 +8,6 @@
 #ifndef CooOrchestrator_h
 #define CooOrchestrator_h
 
-#import <CooOrchestrator/OhRegistrationMacros.h>
+#import "OhRegistrationMacros.h"
 
 #endif /* CooOrchestrator_h */
