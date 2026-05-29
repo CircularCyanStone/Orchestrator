@@ -11,7 +11,7 @@ import SwiftSyntaxMacros
 @main
 public struct CooOrchestratorPlugin: CompilerPlugin {
     public let providingMacros: [Macro.Type] = [
-        OhRegisterServiceMacro.self
+        OhRegisterPluginMacro.self
     ]
     
     public init() {}

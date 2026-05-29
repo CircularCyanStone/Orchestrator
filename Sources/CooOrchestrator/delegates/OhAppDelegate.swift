@@ -14,21 +14,21 @@ import UIKit
 open class OhLegacyAppDelegate: UIResponder, UIApplicationDelegate {
         
     
-    /// 定义服务加载器
+    /// 定义插件加载器
     /// - Description:
-    ///   子类可以通过重写此属性来自定义服务加载策略，而无需重写 application(_:didFinishLaunchingWithOptions:)。
+    ///   子类可以通过重写此属性来自定义插件加载策略，而无需重写 application(_:didFinishLaunchingWithOptions:)。
     ///   默认包含 OhModuleLoader (模块加载) 和 OhObjcSectionLoader (OC段加载)。
-    open var serviceLoaders: [OhServiceLoader] {
+    open var pluginLoaders: [OhPluginLoader] {
         return [OhModuleLoader(), OhObjcSectionLoader()]
     }
 
     /// 程序生命周期入口
     /// - Description:
     ///   标准启动入口，负责初始化编排器并分发 .didFinishLaunching 事件。
-    ///   如果需要自定义服务源，请重写 `serviceLoaders` 属性。
+    ///   如果需要自定义插件源，请重写 `pluginLoaders` 属性。
     open func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        // 1. 使用配置的源进行服务解析
-        Orchestrator.resolve(loaders: self.serviceLoaders)
+        // 1. 使用配置的源进行插件解析
+        Orchestrator.resolve(loaders: self.pluginLoaders)
         
         // 2. 准备参数并分发事件
         let params: [OhParameterKey: Any] = [

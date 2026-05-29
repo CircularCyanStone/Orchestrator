@@ -60,7 +60,7 @@ enum MacroHelper {
         context.diagnose(Diagnostic(
             node: node,
             message: DebugDiagnostic(
-                message: "❌ Unable to infer module name from context. Please specify the module name explicitly: @OrchService(\"YourModuleName\")",
+                message: "❌ Unable to infer module name from context. Please specify the module name explicitly: @OrchPlugin(\"YourModuleName\")",
                 diagnosticID: MessageID(domain: "CooMacros", id: "module_inference_failed"),
                 severity: .error
             )

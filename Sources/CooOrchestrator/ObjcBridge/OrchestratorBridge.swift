@@ -11,12 +11,7 @@ public class OrchestratorBridge: NSObject {
 
     // MARK: - Fire
 
-    /// 触发指定事件的服务执行
-    /// - Parameters:
-    ///   - event: 事件名（对应 OhEvent.rawValue，可使用 OhObjcEvent 中的常量）
-    ///   - source: 触发事件的源对象（如 AppDelegate、SceneDelegate）
-    ///   - parameters: 事件参数字典，key 为字符串
-    /// - Returns: 执行结果包装
+    /// 触发指定事件的插件执行
     @discardableResult
     public class func fire(_ event: String, source: Any?, parameters: [AnyHashable: Any]?) -> OhObjcResult {
         let ohEvent = OhEvent(rawValue: event)
@@ -33,12 +28,12 @@ public class OrchestratorBridge: NSObject {
     }
 
     /// 使用指定 loader 类名列表启动引导
-    /// - Parameter classNames: OhServiceLoader 实现类的完整类名数组（如 ["MyApp.MyCustomLoader"]）
+    /// - Parameter classNames: OhPluginLoader 实现类的完整类名数组
     public class func resolve(withLoaderClassNames classNames: [String]) {
-        var loaders: [OhServiceLoader] = []
+        var loaders: [OhPluginLoader] = []
         for name in classNames {
-            guard let cls = NSClassFromString(name) as? OhServiceLoader.Type else {
-                OhLogger.log("OrchestratorBridge: Class '\(name)' is not a valid OhServiceLoader", level: .warning)
+            guard let cls = NSClassFromString(name) as? OhPluginLoader.Type else {
+                OhLogger.log("OrchestratorBridge: Class '\(name)' is not a valid OhPluginLoader", level: .warning)
                 continue
             }
             loaders.append(cls.init())
@@ -46,24 +41,22 @@ public class OrchestratorBridge: NSObject {
         Orchestrator.resolve(loaders: loaders)
     }
 
-    // MARK: - Service Query
-
-    /// 通过服务 ID 获取常驻服务实例
-    /// - Parameter id: 服务 ID（通常为类名）
-    /// - Returns: 服务实例，如果不存在或策略非 hold 则返回 nil
-    public class func service(byId id: String) -> Any? {
-        return Orchestrator.service(of: id)
+    /// 通过插件 ID 获取常驻插件实例
+    /// - Parameter id: 插件 ID（通常为类名）
+    /// - Returns: 插件实例，如果不存在或策略非 hold 则返回 nil
+    public class func plugin(byId id: String) -> Any? {
+        return Orchestrator.plugin(of: id)
     }
 
     // MARK: - Register
 
-    /// 通过服务类名注册服务
+    /// 通过插件类名注册插件
     /// - Parameters:
-    ///   - className: 服务类的完整类名（如 "MyApp.MyService"）
+    ///   - className: 插件类的完整类名（如 "MyApp.MyPlugin"）
     ///   - priority: 优先级数值（可选，nil 使用默认值）
     ///   - retention: 驻留策略字符串（"hold" 或 "destroy"，可选，nil 使用默认值）
     ///   - args: 静态参数（可选）
-    public class func registerService(className: String, priority: NSNumber?, retention: String?, args: [String: Any]?) {
+    public class func registerPlugin(className: String, priority: NSNumber?, retention: String?, args: [String: Any]?) {
         guard let cls = NSClassFromString(className) else {
             OhLogger.log("OrchestratorBridge: Class '\(className)' not found", level: .warning)
             return
@@ -85,8 +78,8 @@ public class OrchestratorBridge: NSObject {
             return result
         } ?? [:]
 
-        let desc = OhServiceDefinition(
-            serviceClass: cls,
+        let desc = OhPluginDefinition(
+            pluginClass: cls,
             priority: ohPriority,
             retentionPolicy: ohRetention,
             args: sendableArgs

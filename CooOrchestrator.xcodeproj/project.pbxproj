@@ -93,13 +93,14 @@
 		656FE39E2F002422000B7AD2 /* Exceptions for "Sources" folder in "CooOrchestrator" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+				CooOrchestrator/macros/Macros.swift,
 				CooOrchestratorMacros/MacroHelper.swift,
-				CooOrchestratorMacros/OhRegisterServiceMacro.swift,
+				CooOrchestratorMacros/OhRegisterPluginMacro.swift,
 				CooOrchestratorMacros/Plugin.swift,
 			);
 			publicHeaders = (
 				CooOrchestrator/CooOrchestrator.h,
-				CooOrchestrator/serviceLoaders/ocMacros/OhRegistrationMacros.h,
+				CooOrchestrator/OhRegistrationMacros.h,
 			);
 			target = FBD17C8A2EF3D61900C9CDB2 /* CooOrchestrator */;
 		};

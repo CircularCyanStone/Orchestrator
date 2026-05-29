@@ -11,12 +11,12 @@
 
 Pod::Spec.new do |s|
   s.name             = 'CooOrchestrator'
-  s.version          = '0.0.13'
-  s.summary          = '一个用于模块化管理应用生命周期与服务分发的编排框架。'
+  s.version          = '0.0.14'
+  s.summary          = '一个用于模块化管理应用生命周期与插件编排的调度框架。'
 
   s.description      = <<-DESC
-                       CooOrchestrator是一个用于模块化管理应用生命周期与服务分发的编排框架，
-                       提供统一的服务协议、时机与优先级、生命周期与自动注册（Manifest），
+                       CooOrchestrator是一个用于模块化管理应用生命周期与插件编排的调度框架，
+                       提供统一的插件协议、时机与优先级、生命周期与自动注册（Manifest），
                        支持多线程安全调度。
                        DESC
 
@@ -33,7 +33,7 @@ Pod::Spec.new do |s|
   # 排除 Swift 宏相关文件（CocoaPods 不支持 Swift 宏插件）
   s.exclude_files = [
     'Sources/CooOrchestrator/macros/**/*',
-    'Sources/CooOrchestrator/serviceLoaders/OhSwiftSectionLoader.swift'
+    'Sources/CooOrchestrator/pluginLoaders/OhSwiftSectionLoader.swift'
   ]
 
   s.public_header_files = 'Sources/CooOrchestrator/**/*.h'

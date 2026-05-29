@@ -28,7 +28,7 @@
 
 // 注册服务 (OhService)
 // 参数：modulename (Swift模块命名空间|target名称|framework名称), classname (模块类型名称)
-#define OH_REGISTER_SERVICE(modulename, classname) \
+#define OH_REGISTER_PLUGIN(modulename, classname) \
     OH_DATA_SECTION("__coo_svc") \
     static const char *__coo_svc_##modulename##_##classname = #modulename "." #classname;
 

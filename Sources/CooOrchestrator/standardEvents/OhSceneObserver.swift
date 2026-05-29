@@ -8,7 +8,7 @@ import UIKit
 /// 标准 SceneDelegate 生命周期观察者协议
 /// - 适用于 iOS 13+ 的多窗口场景
 /// - 开发者可以选择遵守此协议，直接实现对应的生命周期方法
-/// - 注意：此协议不继承 `OhService`，需显式遵守 `OhService` 协议并手动注册感兴趣的事件。
+/// - 注意：此协议不继承 `OhPlugin`，需显式遵守 `OhPlugin` 协议并手动注册感兴趣的事件。
 @MainActor public protocol OhSceneObserver: Sendable {
     
     // MARK: - Scene Life Cycle
@@ -54,7 +54,7 @@ import UIKit
 public extension OhSceneObserver {
     
     // MARK: Default Implementations
-    nonisolated static func addScene<Service: OhService & OhSceneObserver>(_ event: OhEvent, in registry: OhRegistry<Service>) {
+    nonisolated static func addScene<Plugin: OhPlugin & OhSceneObserver>(_ event: OhEvent, in registry: OhPluginRegistry<Plugin>) {
         registry.add(event) { s, c in
             return try MainActor.assumeIsolated {
                 try s.dispatchSceneEvent(c)

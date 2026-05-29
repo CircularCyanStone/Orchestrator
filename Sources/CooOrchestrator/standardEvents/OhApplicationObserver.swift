@@ -10,7 +10,7 @@ import UIKit
 /// 标准 AppDelegate 生命周期观察者协议
 /// - 开发者可以选择遵守此协议，直接实现对应的生命周期方法，而无需在 `register` 中手动 switch event。
 /// - 所有方法均返回 `OhResult`，支持责任链控制（如阻断后续服务）。
-/// - 注意：此协议不继承 `OhService`，需显式遵守 `OhService` 协议并手动注册感兴趣的事件。
+/// - 注意：此协议不继承 `OhPlugin`，需显式遵守 `OhPlugin` 协议并手动注册感兴趣的事件。
 @MainActor public protocol OhApplicationObserver: Sendable {
     // MARK: - App Life Cycle
     
@@ -87,7 +87,7 @@ import UIKit
 public extension OhApplicationObserver {
     
     // MARK: Default Implementations (Return .continue())
-    nonisolated static func addApplication<Service: OhService & OhApplicationObserver>(_ event: OhEvent, in registry: OhRegistry<Service>) {
+    nonisolated static func addApplication<Plugin: OhPlugin & OhApplicationObserver>(_ event: OhEvent, in registry: OhPluginRegistry<Plugin>) {
         registry.add(event) { s, c in
             return try MainActor.assumeIsolated {
                 return try s.dispatchApplicationEvent(c)
