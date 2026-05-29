@@ -1,0 +1,16 @@
+PODS:
+  - CooOrchestrator (0.0.11)
+
+DEPENDENCIES:
+  - CooOrchestrator (from `../`)
+
+EXTERNAL SOURCES:
+  CooOrchestrator:
+    :path: "../"
+
+SPEC CHECKSUMS:
+  CooOrchestrator: a1a3ba129300fc63f9ba3e200b0144784c3c1341
+
+PODFILE CHECKSUM: 6f6dd045ab6001a713d8f6240e82125893967657
+
+COCOAPODS: 1.16.2

@@ -11,7 +11,7 @@
 
 Pod::Spec.new do |s|
   s.name             = 'CooOrchestrator'
-  s.version          = '0.0.11'
+  s.version          = '0.0.12'
   s.summary          = '一个用于模块化管理应用生命周期与服务分发的编排框架。'
 
   s.description      = <<-DESC
