@@ -61,7 +61,7 @@ public final class OhPluginRegistry<T: OhPlugin>: @unchecked Sendable {
 /// - `Orchestrator` 提供了简易的实例管理能力（通过 `retention = .hold` + `Orchestrator.service(of:)`）。
 /// - 这适合小型项目或无需外部 DI 工具的场景。
 /// - 对于中大型项目，建议使用专业的 DI 工具管理业务服务，Orchestrator 仅负责编排。
-public protocol OhPlugin: AnyObject, Sendable {
+public protocol OhPlugin: AnyObject {
     /// 插件唯一标识（默认为类名）
     static var id: String { get }
     /// 默认优先级（默认为 .medium）

@@ -9,7 +9,7 @@ import UIKit
 /// - 适用于 iOS 13+ 的多窗口场景
 /// - 开发者可以选择遵守此协议，直接实现对应的生命周期方法
 /// - 注意：此协议不继承 `OhPlugin`，需显式遵守 `OhPlugin` 协议并手动注册感兴趣的事件。
-@MainActor public protocol OhSceneObserver: Sendable {
+@MainActor public protocol OhSceneObserver {
     
     // MARK: - Scene Life Cycle
     

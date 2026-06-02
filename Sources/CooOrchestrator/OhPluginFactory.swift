@@ -6,7 +6,7 @@ import Foundation
 /// 插件工厂协议
 /// - 适用场景：插件初始化需要外部依赖或复杂参数拼装时，通过工厂完成构造，
 ///   并由清单通过 `factory` 字段指定对应的工厂类型。
-public protocol OhPluginFactory: AnyObject, Sendable {
+public protocol OhPluginFactory: AnyObject {
     /// 要求可无参初始化，便于通过类名反射创建工厂实例
     init()
     /// 根据上下文与参数创建插件实例
