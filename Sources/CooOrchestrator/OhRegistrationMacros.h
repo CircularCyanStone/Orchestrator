@@ -26,10 +26,18 @@
 // section 格式：segment,section
 #define OH_DATA_SECTION(sectname) __attribute__((used, section("__DATA," sectname)))
 
-// 注册服务 (OhService)
+// 注册服务 (OhPlugin)
 // 参数：modulename (Swift模块命名空间|target名称|framework名称), classname (模块类型名称)
 #define OH_REGISTER_PLUGIN(modulename, classname) \
     OH_DATA_SECTION("__coo_svc") \
     static const char *__coo_svc_##modulename##_##classname = #modulename "." #classname;
+
+// 注册主工程服务 (便捷版，无需填写模块名)
+// 参数：classname (类名称)
+// Loader 会在运行时自动拼接主工程的 PRODUCT_MODULE_NAME 进行解析。
+// 如果类来自子模块或动态库，请使用 OH_REGISTER_PLUGIN 显式指定模块名。
+#define OH_REGISTER_APP_PLUGIN(classname) \
+    OH_DATA_SECTION("__coo_svc") \
+    static const char *__coo_svc_##classname = #classname;
 
 #endif /* OhRegistrationMacros_h */
