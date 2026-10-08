@@ -1,3 +1,6 @@
+#if canImport(UIKit)
+// 说明：UIKit 只在 iOS / tvOS 等平台可用。本文件整体不参与非 UIKit 平台的编译，
+// 这样框架核心（Orchestrator / Plugin Loaders / @OrchPlugin 宏）可以跨平台编译与测试。
 //
 //  OhAppDelegate.swift
 //  CooOrchestrator
@@ -187,3 +190,4 @@ open class OhAppDelegate: OhLegacyAppDelegate {
         Orchestrator.fire(.didDiscardSceneSessions, parameters: params)
     }
 }
+#endif

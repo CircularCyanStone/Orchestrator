@@ -1,5 +1,15 @@
 # CooOrchestrator 使用指南
 
+> **版本提示（v0.0.18）**
+>
+> - `@OrchPlugin` 宏在 Swift 6.3+ 上已改为**整型定长编码**（类名 → 8 × `UInt64` 写入
+>   `__DATA,__coo_sw_svc`），旧实现（`(StaticString)` 进 Section）在 6.3 / 6.4 上无法编译。
+>   详见 [方案一](#方案一orchplugin-宏推荐) 与 [CHANGELOG.md](CHANGELOG.md)。
+> - 使用该宏的工程需要 **Swift 6.3+** 工具链，且不再需要
+>   `-enable-experimental-feature SymbolLinkageMarkers`。
+> - 本文正文部分章节仍沿用早期的 `OhService` 命名，当前代码对应为 `OhPlugin`
+>   （即 `@OrchService` → `@OrchPlugin`、`OhRegistry` → `OhPluginRegistry`）。
+
 ## 目录
 
 1. [核心角色与职责](#1-核心角色与职责)
@@ -272,27 +282,25 @@ MyModule.framework/
 
 ## 5. 四种服务注册方案
 
-### 方案一：@OrchService 宏（推荐）
+### 方案一：@OrchPlugin 宏（推荐）
 
 **核心原理：**
-- 宏在编译时生成 Mach-O Section 数据
-- `OhSwiftSectionLoader` 在运行时扫描 Section 获取类名
-- 框架自动创建服务描述符
+- 宏在编译时把「模块名.类型名」写入 Mach-O 的 `__DATA,__coo_sw_svc` Section
+- `OhSwiftSectionLoader` 在运行时扫描该 Section 取出类名，经 `NSClassFromString` 解析为类型
+- 框架自动创建插件描述符，无需 plist 或手动登记（零配置自动发现）
 
 **谁来实现：**
-- 业务开发者实现 `OhService`
-- 框架自动处理服务发现
+- 业务开发者实现 `OhPlugin`
+- 框架自动处理插件发现
 
 **使用方式：**
 
 ```swift
-@OrchService()
-final class MyService: OhService {
-    required init() {}
-
-    static func register(in registry: OhRegistry<MyService>) {
-        registry.add(.didFinishLaunching) { service, context in
-            print("Service created!")
+@OrchPlugin()
+final class MyPlugin: OhPlugin {
+    static func register(in registry: OhPluginRegistry<MyPlugin>) {
+        registry.add(.didFinishLaunching) { plugin, context in
+            print("Plugin created!")
             return .continue()
         }
     }
@@ -303,8 +311,8 @@ final class MyService: OhService {
 
 ```swift
 // 在 MyModule 模块中
-@OrchService("MyModule")
-final class MyService: OhService {
+@OrchPlugin("MyModule")
+final class MyPlugin: OhPlugin {
     // ...
 }
 ```
@@ -313,11 +321,54 @@ final class MyService: OhService {
 
 ```swift
 class AppDelegate: OhAppDelegate {
-    override var serviceLoaders: [OhServiceLoader] {
+    override var pluginLoaders: [OhPluginLoader] {
         [OhSwiftSectionLoader()]  // 启用 Swift 宏扫描
     }
 }
 ```
+
+#### Swift 6.3+ 的关键变更（v0.0.18）
+
+Swift 6.3 起，带 `@section` 的静态量初始化器必须能被**编译期常量求值器**求值，而求值器只支持标量常量。
+旧实现把类名以 `(StaticString)` 写进 Section，因此在 6.3 / 6.4 上直接编译失败：
+
+| 工具链 | 旧实现的报错 |
+|--------|--------------|
+| Swift 6.4（Xcode 27） | `error: unsupported type in a literal expression [const_unsupported_type]` |
+| Swift 6.3（Xcode 26.6） | `error: unsupported type in a constant expression` |
+
+v0.0.18 起改为**整型定长编码**，并使用稳定属性名 `@used` / `@section`（不再是 `@_used` / `@_section`）。
+以 `@OrchPlugin("SiKu")` 标注 `SKBootService` 为例，宏展开为：
+
+```swift
+@used
+@section("__DATA,__coo_sw_svc")
+static let _coo_svc_entry: (UInt64, UInt64, UInt64, UInt64, UInt64, UInt64, UInt64, UInt64) = (
+    0x424B532E754B6953, 0x6976726553746F6F, 0x0000000000006563, 0x0000000000000000,
+    0x0000000000000000, 0x0000000000000000, 0x0000000000000000, 0x0000000000000000
+)
+```
+
+**Section 数据格式**
+
+| 项 | 规则 |
+|----|------|
+| 条目大小 | 8 × `UInt64` = 64 字节；Section 总大小 = 条目数 × 64（紧凑无 padding，`align 2^3`） |
+| 编码 | 类名 UTF-8 字节 `b[i]` 装入：`word[i / 8] \|= UInt64(b[i]) << ((i % 8) * 8)`（小端，每字节占一个 8 位通道） |
+| 未用字节 | 一律为 0（解码时截断到第一个 `0x00`） |
+| 长度上限 | 类名（`模块名.类型名`）UTF-8 最长 64 字节；超出时宏给出可读的编译错误 |
+| 编码 | `OhPluginSectionEncoder`（宏侧**唯一**实现：类名 → 8 个字面量） |
+| 解码 | `OhPluginSectionDecoder`（库侧纯函数；两端一致性由「黄金值 + 宏展开产物 → 库侧解码」的单元测试守护） |
+
+上例的 8 个字面量即 `SiKu.SKBootService` 的黄金值（18 字节，占 3 个 `UInt64`）。
+
+**兼容性**
+
+- 使用 `@OrchPlugin` 的工程需要 **Swift 6.3+** 工具链，且**不再需要**
+  `-enable-experimental-feature SymbolLinkageMarkers`。
+- **数据格式与 0.0.17 及更早不兼容**：升级后需要重新编译所有含 `@OrchPlugin` 的模块
+  （源码依赖的正常构建即是如此），旧产物不会被识别。
+- `@OrchPlugin` 的公开签名未变，使用方只升级依赖版本即可，代码无需改动。
 
 ---
 
