@@ -13,7 +13,7 @@ import exampleModule1
 @main
 class AppDelegate: OhAppDelegate {
     
-    override var serviceLoaders: [any OhServiceLoader] {
+    override var pluginLoaders: [any OhPluginLoader] {
         [
             OhManifestLoader()
         ]

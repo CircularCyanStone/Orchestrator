@@ -9,9 +9,15 @@ import Foundation
 import CooOrchestrator
 import UIKit
 
-public final class DModule2: NSObject, OhService, OhApplicationObserver, OhSceneObserver {
+public final class DModule2: NSObject, OhPlugin, OhApplicationObserver, OhSceneObserver {
 
-    public static func register(in registry: CooOrchestrator.OhRegistry<DModule2>) {
+    // 协议要求 `@MainActor init()`；显式声明的非隔离 init 满足该要求，
+    // 但继承自 NSObject 的 init 不被接受，故此处显式提供。
+    public required override init() {
+        super.init()
+    }
+
+    public static func register(in registry: CooOrchestrator.OhPluginRegistry<DModule2>) {
         print("DynamicModule2正在加载")
         addScene(.sceneWillConnect, in: registry)
         addApplication(.didFinishLaunching, in: registry)

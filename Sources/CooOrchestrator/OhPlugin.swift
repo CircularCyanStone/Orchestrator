@@ -7,6 +7,20 @@ import Foundation
 /// 插件注册表（泛型容器）
 /// - 职责：收集特定插件类型的所有事件处理闭包。
 /// - 设计：使用泛型 T 确保注册时的类型安全，避免强制转换。
+///
+/// **并发契约（`@unchecked Sendable` 的依据，改动前请先读完）：**
+/// 1. **实例是一次性的**：每个实例由 `Orchestrator.invokeRegister(_:)` 创建，紧接着调用
+///    `T.register(in:)` 写入，再读取 `entries` 后即被丢弃；写入与读取都发生在同一次
+///    调用栈内，实例不会跨线程共享（全仓 `registry.entries` 只有那一处读取）。
+/// 2. **写入在调用方的锁内**：`register(in:)` 只由 `Orchestrator.mergeDefinitions(_:)`
+///    调用，而它的三个调用点（`register(_:)`、`resolve(loaders:)`、`fire(_:)` 的
+///    bootstrap 分支）都在 `UnfairLock` 持有区间内，因此 `entries.append` 的并发安全
+///    由**调用方的锁**保证 —— 本类型自身不加锁，也不能在多线程间共享同一个实例。
+/// 3. **handler 的调用时机**：闭包被复制进 `Orchestrator.ResolvedPluginEntry` 之后，
+///    才在锁外、由 `fire(_:)` 的调用者线程执行。这也是 `addScene` / `addApplication`
+///    等注册入口是 `nonisolated`、却在闭包内用 `MainActor.assumeIsolated` 的原因。
+/// 4. `@unchecked Sendable` 只是为了让实例能作为参数传给非隔离的 `register(in:)`，
+///    它声明的是"实例独占"这一事实，而非"内部有锁"。
 public final class OhPluginRegistry<T: OhPlugin>: @unchecked Sendable {
     // 存储注册项：事件 -> 闭包
     struct Entry {
@@ -76,7 +90,9 @@ public protocol OhPlugin: AnyObject {
     static var isLazy: Bool { get }
 
     /// 必须提供无参构造器（用于反射或工厂创建）
-    init()
+    /// - Note: `@MainActor` 即契约：框架在调用前已切到主线程，
+    ///   实现方不需要自行调度（可写非隔离方法，也可写 `@MainActor` 方法）。
+    @MainActor init()
 
     /// 注册插件感兴趣的事件
     /// - Parameter registry: 注册表容器
@@ -85,10 +101,12 @@ public protocol OhPlugin: AnyObject {
     ///   否则会阻塞整个编排器的状态访问。闭包内的逻辑不会在此处执行，仅被存储。
     static func register(in registry: OhPluginRegistry<Self>)
 
-    /// 插件实例创建完成后的回调，主线程回调
+    /// 插件实例创建完成后的回调
     /// - 用于执行初始化逻辑，替代在 didFinishLaunching 中写逻辑
     /// - 注意：此方法执行时，插件实例已创建但尚未处理任何事件
-    func pluginDidResolve()
+    /// - Note: `@MainActor` 即契约：与 `init()` 一致，框架保证在主线程调用
+    ///   （`Orchestrator.instantiatePlugin` 内部用 `DispatchQueue.main.sync` 兜底切主线程）。
+    @MainActor func pluginDidResolve()
 }
 
 // MARK: - Default Implementation
@@ -97,5 +115,22 @@ public extension OhPlugin {
     static var priority: OhPriority { .medium }
     static var retention: OhRetentionPolicy { .destroy }
     static var isLazy: Bool { true }
-    func pluginDidResolve() {}
+    @MainActor func pluginDidResolve() {}
+}
+
+// MARK: - Concurrency Helper
+
+/// 并发检查豁免盒：把非 Sendable 的值传递进主线程（`@MainActor`）隔离闭包。
+///
+/// **用途**：`OhSceneObserver.addScene` / `OhApplicationObserver.addApplication` 注册的
+/// handler 需要在 `MainActor.assumeIsolated` 中驱动插件实例，但 `OhPlugin` 为简化使用者
+/// 接入未约束 `Sendable`，编译期无法证明插件实例可跨隔离域传递。
+///
+/// **安全性依据**：插件实例的创建（`Orchestrator.instantiatePlugin`，内部用
+/// `DispatchQueue.main.sync` 强制主线程）与事件驱动（UIKit 生命周期回调）都在主线程，
+/// 实例实际是主线程独占的；这里只是把这一既有约定显式告知编译器。
+///
+/// - Warning: 仅用于上述场景；传入会被多线程并发访问的值会使豁免失效。
+struct OhUncheckedSendable<T>: @unchecked Sendable {
+    let value: T
 }

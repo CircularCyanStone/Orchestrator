@@ -11,10 +11,10 @@ import CooOrchestrator
 // MARK: - 模块内服务 (通过 Module 注册)
 
 // 服务 A
-final class TestServiceA: OhService {
+final class TestServiceA: OhPlugin {
     required init() {}
     
-    static func register(in registry: OhRegistry<TestServiceA>) {
+    static func register(in registry: OhPluginRegistry<TestServiceA>) {
         // 注册一些事件...
         registry.add(.didFinishLaunching) { s, c in
             print("TestServiceA didFinishLaunching")
@@ -29,11 +29,11 @@ final class TestServiceA: OhService {
 
 // 服务 B
 @OrchService()
-final class TestServiceB: OhService {
+final class TestServiceB: OhPlugin {
     required init() {}
     
     
-    static func register(in registry: OhRegistry<TestServiceB>) {
+    static func register(in registry: OhPluginRegistry<TestServiceB>) {
         registry.add(.didFinishLaunching) { s, c in
             print("TestServiceB didFinishLaunching")
         }
@@ -51,10 +51,10 @@ final class TestServiceB: OhService {
 
 // 服务 C
 @OrchService()
-final class TestServiceC: OhService {
+final class TestServiceC: OhPlugin {
     required init() {}
     
-    static func register(in registry: OhRegistry<TestServiceC>) {
+    static func register(in registry: OhPluginRegistry<TestServiceC>) {
         registry.add(.didFinishLaunching) { s, c in
             print("TestServiceC didFinishLaunching")
         }
@@ -68,10 +68,10 @@ final class TestServiceC: OhService {
 
 // 服务 D
 @OrchService("SPMExample")
-final class TestServiceD: OhService {
+final class TestServiceD: OhPlugin {
     required init() {}
     
-    static func register(in registry: OhRegistry<TestServiceD>) {
+    static func register(in registry: OhPluginRegistry<TestServiceD>) {
         registry.add(.didFinishLaunching) { s, c in
             print("TestServiceD didFinishLaunching")
         }

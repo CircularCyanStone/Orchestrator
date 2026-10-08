@@ -11,7 +11,7 @@ import CooOrchestrator
 @main
 class AppDelegate: OhAppDelegate {
 
-    override var serviceLoaders: [OhServiceLoader] {
+    override var pluginLoaders: [OhPluginLoader] {
         [OhSwiftSectionLoader()]
     }
     

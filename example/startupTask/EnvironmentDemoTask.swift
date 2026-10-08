@@ -1,7 +1,7 @@
 import Foundation
 import CooOrchestrator
 
-public final class EnvironmentDemoTask: NSObject, OhService {
+public final class EnvironmentDemoTask: NSObject, OhPlugin {
     public static let id: String = "env.demo"
     public static let priority: OhPriority = .init(rawValue: 50)
     public static let retention: OhRetentionPolicy = .destroy
@@ -12,7 +12,7 @@ public final class EnvironmentDemoTask: NSObject, OhService {
     }
 
     // 协议变更：注册事件处理
-    public static func register(in registry: OhRegistry<EnvironmentDemoTask>) {
+    public static func register(in registry: OhPluginRegistry<EnvironmentDemoTask>) {
         registry.add(.didFinishLaunching) { service, context in
             // 直接使用 Bundle.main，或根据需要使用其他 Bundle
             let bundle = Bundle.main

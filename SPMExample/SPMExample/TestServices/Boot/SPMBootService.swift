@@ -9,8 +9,8 @@ import UIKit
 import CooOrchestrator
 
 @OrchService()
-final class SPMBootService: OhService {
-    static func register(in registry: CooOrchestrator.OhRegistry<SPMBootService>) {
+final class SPMBootService: OhPlugin {
+    static func register(in registry: CooOrchestrator.OhPluginRegistry<SPMBootService>) {
         addScene(.sceneWillConnect, in: registry)
     }
 }
@@ -34,8 +34,8 @@ extension SPMBootService: OhSceneObserver {
 }
 
 @OrchService()
-final class SPMBoot2Service: OhService {
-    static func register(in registry: CooOrchestrator.OhRegistry<SPMBoot2Service>) {
+final class SPMBoot2Service: OhPlugin {
+    static func register(in registry: CooOrchestrator.OhPluginRegistry<SPMBoot2Service>) {
         addApplication(.didFinishLaunching, in: registry)
     }
 }

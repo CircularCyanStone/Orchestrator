@@ -92,8 +92,8 @@ final class CooOrchestratorTests: XCTestCase {
 final class TModule {
     
 }
-extension TModule: OhServiceLoader {
-    func load() -> [CooOrchestrator.OhServiceDefinition] {
+extension TModule: OhPluginLoader {
+    func load() -> [CooOrchestrator.OhPluginDefinition] {
         []
     }
 }

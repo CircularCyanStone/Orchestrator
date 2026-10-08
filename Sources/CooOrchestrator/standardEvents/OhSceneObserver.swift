@@ -54,10 +54,23 @@ import UIKit
 public extension OhSceneObserver {
     
     // MARK: Default Implementations
+
+    /// 注册 Scene 事件处理器（便捷方法）
+    ///
+    /// - 为什么是 `nonisolated`：`OhPlugin.register(in:)` 是非隔离的静态要求，会在
+    ///   `Orchestrator` 的内部锁内、由任意线程调用，因此这里不能要求主线程隔离。
+    /// - 为什么闭包内用 `MainActor.assumeIsolated`：`OhSceneObserver` 是 `@MainActor` 协议，
+    ///   而 handler 实际由 UIKit 生命周期回调（主线程）触发，用 `assumeIsolated`
+    ///   把执行切回主线程隔离域。⚠️ 若 handler 在主线程之外被调用会触发运行时陷阱。
+    /// - `OhUncheckedSendable`：`Plugin` 未约束 `Sendable`（为简化使用者接入），
+    ///   编译期无法证明插件实例可跨隔离域传递，此处显式豁免，依据见该类型注释。
+    /// - 闭包必须显式标注 `-> OhResult`：`OhPluginRegistry.add` 有两个重载
+    ///   （返回 `OhResult` / 返回 `Void`），多语句闭包无法靠返回值推断出唯一重载。
     nonisolated static func addScene<Plugin: OhPlugin & OhSceneObserver>(_ event: OhEvent, in registry: OhPluginRegistry<Plugin>) {
-        registry.add(event) { s, c in
+        registry.add(event) { s, c -> OhResult in
+            let plugin = OhUncheckedSendable(value: s)
             return try MainActor.assumeIsolated {
-                try s.dispatchSceneEvent(c)
+                try plugin.value.dispatchSceneEvent(c)
             }
         }
     }

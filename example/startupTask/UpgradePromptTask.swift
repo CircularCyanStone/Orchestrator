@@ -5,7 +5,7 @@
 import Foundation
 import CooOrchestrator
 
-public final class UpgradePromptTask: NSObject, OhService {
+public final class UpgradePromptTask: NSObject, OhPlugin {
     public static let id: String = "upgrade.prompt"
     public static let priority: OhPriority = .init(rawValue: 150)
     public static let retention: OhRetentionPolicy = .destroy
@@ -14,7 +14,7 @@ public final class UpgradePromptTask: NSObject, OhService {
         super.init()
     }
 
-    public static func register(in registry: OhRegistry<UpgradePromptTask>) {
+    public static func register(in registry: OhPluginRegistry<UpgradePromptTask>) {
         registry.add(.didFinishLaunching) { s, c in
             // 检查更新...
             print("didFinishLaunching ok")

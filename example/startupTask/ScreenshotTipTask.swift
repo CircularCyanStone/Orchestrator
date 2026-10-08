@@ -5,7 +5,7 @@
 import Foundation
 import CooOrchestrator
 
-public final class ScreenshotTipTask: NSObject, OhService {
+public final class ScreenshotTipTask: NSObject, OhPlugin {
     public static let id: String = "screenshot.tip"
     public static let priority: OhPriority = .init(rawValue: 100)
     public static let retention: OhRetentionPolicy = .destroy
@@ -15,7 +15,7 @@ public final class ScreenshotTipTask: NSObject, OhService {
         super.init()
     }
 
-    public static func register(in registry: OhRegistry<ScreenshotTipTask>) {
+    public static func register(in registry: OhPluginRegistry<ScreenshotTipTask>) {
         registry.add(.appReady) { s, c in
             // 处理逻辑...
             return .continue()

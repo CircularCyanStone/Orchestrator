@@ -8,11 +8,11 @@
 import UIKit
 import CooOrchestrator
 
-final class ExBootService: OhService, OhSceneObserver {
+final class ExBootService: OhPlugin, OhSceneObserver {
     
     static var priority: OhPriority = .boot
     
-    static func register(in registry: CooOrchestrator.OhRegistry<ExBootService>) {
+    static func register(in registry: CooOrchestrator.OhPluginRegistry<ExBootService>) {
         addScene(.sceneWillConnect, in: registry)
     }
     

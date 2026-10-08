@@ -6,7 +6,7 @@ import Foundation
 import CooOrchestrator
 import UIKit
 
-public final class PushNotificationInitTask: NSObject, OhService, OhApplicationObserver {
+public final class PushNotificationInitTask: NSObject, OhPlugin, OhApplicationObserver {
     public static let id: String = "push.init"
     public static let priority: OhPriority = .init(rawValue: 200)
     public static let retention: OhRetentionPolicy = .hold
@@ -17,7 +17,7 @@ public final class PushNotificationInitTask: NSObject, OhService, OhApplicationO
     }
 
     // 协议变更：注册事件处理
-    public static func register(in registry: OhRegistry<PushNotificationInitTask>) {
+    public static func register(in registry: OhPluginRegistry<PushNotificationInitTask>) {
         // 注册启动事件 (委托给 dispatchApplicationEvent)
         addApplication(.didFinishLaunching, in: registry)
         addApplication(.didRegisterForRemoteNotifications, in: registry)

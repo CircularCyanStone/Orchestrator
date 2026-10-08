@@ -317,6 +317,21 @@ public final class Orchestrator: @unchecked Sendable {
             }
         }
 
+        // 已确认在主线程：切进主线程隔离域完成实例化。
+        // `MainActor.assumeIsolated` 要求返回值 `Sendable`，而插件实例不是，
+        // 故用 `OhUncheckedSendable` 把实例带出隔离域（依据见该类型注释）。
+        return MainActor.assumeIsolated {
+            OhUncheckedSendable(value: self.instantiateOnMain(from: desc, context: context))
+        }.value
+    }
+
+    /// 在主线程隔离域内完成实际的实例化与回调
+    /// - Note: 仅由 `instantiatePlugin` 在确认已处于主线程后调用。
+    @MainActor
+    private func instantiateOnMain(
+        from desc: OhPluginDefinition,
+        context: OhContext
+    ) -> (any OhPlugin)? {
         let className = NSStringFromClass(desc.pluginClass)
         var plugin: (any OhPlugin)?
 
