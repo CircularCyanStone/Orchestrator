@@ -188,8 +188,27 @@ final class OhRegisterPluginMacroTests: XCTestCase {
 
         XCTAssertTrue(context.diagnostics.isEmpty, "不应产生诊断: \(context.diagnostics.map { $0.message })")
 
-        XCTAssertTrue(text.contains("@used"), "宏必须使用新属性名 @used（旧名 @_used 在 6.3+ 会警告）:\n\(text)")
+        XCTAssertTrue(
+            text.contains("#if compiler(>=6.3)"),
+            "展开产物必须按编译器版本切换属性名（6.3+ 用正式名，旧工具链用下划线实验名）:\n\(text)"
+        )
+        XCTAssertTrue(text.contains("@used"), "Swift 6.3+ 分支必须使用正式名 @used:\n\(text)")
+        XCTAssertTrue(
+            text.contains("@_used"),
+            "回退分支必须保留 @_used / @_section（Swift 6.2.x，即 Xcode ≤ 26.3，只有下划线实验名）:\n\(text)"
+        )
         XCTAssertTrue(text.contains("@section(\"__DATA,__coo_sw_svc\")"), "宏必须写入 __coo_sw_svc section:\n\(text)")
+        XCTAssertTrue(
+            text.contains("@_section(\"__DATA,__coo_sw_svc\")"),
+            "回退分支必须写入同一个 __coo_sw_svc section:\n\(text)"
+        )
+
+        // 条件块只能包裹属性：成员声明必须留在 `#endif` 之后，
+        // 否则两个分支会各自声明一份同名成员
+        let endifIndex = try XCTUnwrap(text.range(of: "#endif"))
+        let entryIndex = try XCTUnwrap(text.range(of: "static let _coo_svc_entry"))
+        XCTAssertLessThan(endifIndex.lowerBound, entryIndex.lowerBound, "成员声明必须在 #endif 之后:\n\(text)")
+
         XCTAssertTrue(
             text.contains("static let _coo_svc_entry: (UInt64, UInt64, UInt64, UInt64, UInt64, UInt64, UInt64, UInt64) = ("),
             "成员名与类型必须与 Macros.swift / 库侧布局一致:\n\(text)"

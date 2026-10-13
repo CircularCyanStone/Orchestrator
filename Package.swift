@@ -1,14 +1,27 @@
 // swift-tools-version: 5.9
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 //
-// - Note: `@OrchPlugin` 宏依赖 Swift 6.3 起提供的 `@used` / `@section` 属性
-//   （旧名 `@_used` / `@_section` 在 6.3+ 会输出重命名警告，且 Swift 6.3 起
-//   `@section` 静态量的初始化器必须能被常量求值器求值，详见
-//   `Sources/CooOrchestrator/pluginLoaders/OhPluginSectionDecoder.swift`）。
-//   因此使用该宏的工程需要 Swift 6.3+ 工具链；框架其它部分不受影响。
+// - Note: `@OrchPlugin` 宏生成的属性名随编译器版本切换（宏内部展开为
+//   `#if compiler(>=6.3) @used/@section #else @_used/@_section #endif`）：
+//     - Swift 6.3+（Xcode 26.4+）：正式名 `@used` / `@section`，无需任何额外设置；
+//     - Swift 6.2.x 及更早（Xcode 26.3 及更早）：只有下划线实验名，**使用该宏的
+//       target** 必须开启 `-enable-experimental-feature SymbolLinkageMarkers`。
+//   本包 target 已按编译器版本自动添加该开关；外部集成方在旧工具链上需自行添加，
+//   详见 README 的「方案一 → 旧工具链（Xcode ≤ 26.3）」一节。
+//   另：Swift 6.3 起 `@section` 静态量的初始化器必须能被常量求值器求值，详见
+//   `Sources/CooOrchestrator/pluginLoaders/OhPluginSectionDecoder.swift`。
 
 import PackageDescription
 import CompilerPluginSupport
+
+// Swift 6.2.x 及更早：`@_used` / `@_section` 仍在 SymbolLinkageMarkers 实验特性后面，
+// 凡是要展开 `@OrchPlugin`（或手写这两个属性）的 target 都必须显式开启它。
+// 6.3+ 已无此实验特性（传了也会被忽略），因此按编译器版本条件添加。
+#if compiler(<6.3)
+let sectionLinkageSettings: [SwiftSetting] = [.enableExperimentalFeature("SymbolLinkageMarkers")]
+#else
+let sectionLinkageSettings: [SwiftSetting] = []
+#endif
 
 let package = Package(
     name: "CooOrchestrator",
@@ -40,6 +53,7 @@ let package = Package(
         .target(
             name: "CooOrchestrator",
             dependencies: ["CooOrchestratorMacros"],
+            swiftSettings: sectionLinkageSettings
         ),
         .testTarget(
             name: "CooOrchestratorTests",
@@ -50,7 +64,8 @@ let package = Package(
                 .product(name: "SwiftSyntaxMacros", package: "swift-syntax"),
                 .product(name: "SwiftDiagnostics", package: "swift-syntax"),
                 .product(name: "SwiftParser", package: "swift-syntax"),
-            ]
+            ],
+            swiftSettings: sectionLinkageSettings
         ),
     ],
     swiftLanguageVersions: [

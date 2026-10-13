@@ -5,8 +5,13 @@
 /// 展开后向被标注的类型注入一个静态量（成员名固定为 `_coo_svc_entry`）：
 ///
 /// ```swift
+/// #if compiler(>=6.3)
 /// @used
 /// @section("__DATA,__coo_sw_svc")
+/// #else
+/// @_used
+/// @_section("__DATA,__coo_sw_svc")
+/// #endif
 /// static let _coo_svc_entry: (UInt64, UInt64, UInt64, UInt64, UInt64, UInt64, UInt64, UInt64) = (
 ///     0x424B532E754B6953, ...
 /// )
@@ -23,10 +28,13 @@
 /// - Swift 6.4：`error: unsupported type in a literal expression [const_unsupported_type]`
 /// - Swift 6.3：`error: unsupported type in a constant expression`
 ///
-/// 因此本宏（v0.0.18 起）把类名的 UTF-8 字节编码成 8 个 `UInt64` 字面量
-/// （单条目固定 64 字节），并使用 Swift ≥ 6.3 的稳定属性名 `@used` / `@section`：
+/// 因此本宏把类名的 UTF-8 字节编码成 8 个 `UInt64` 字面量（单条目固定 64 字节，
+/// v0.0.18 起）。属性名按编译器版本切换（v0.0.19 起）：Swift ≥ 6.3 用稳定名
+/// `@used` / `@section`，Swift ≤ 6.2 用实验名 `@_used` / `@_section`：
 ///
-/// - 使用方**不再需要** `-enable-experimental-feature SymbolLinkageMarkers`；
+/// - Swift ≥ 6.3（Xcode ≥ 26.4）：**无需**任何额外设置；
+/// - Swift ≤ 6.2（Xcode ≤ 26.3）：使用该宏的 target 必须开启
+///   `-enable-experimental-feature SymbolLinkageMarkers`；
 /// - 类名（`模块名.类型名`）UTF-8 编码后最长 64 字节，超出会得到明确的编译错误提示；
 /// - 旧二进制（Swift ≤ 6.2 的宏产物）仍可被新版 `OhSwiftSectionLoader` 识别；
 /// - 编码格式与解码实现见 `CooOrchestrator.OhPluginSectionDecoder`。

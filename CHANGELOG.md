@@ -2,6 +2,27 @@
 
 本文件记录 CooOrchestrator 的版本变更。历史条目可结合 `git log` 查阅。
 
+## [0.0.19] - 2026-10-12
+
+### 修复
+
+- **恢复对旧工具链（Swift 6.2.x / Xcode ≤ 26.3）的支持。**
+  `@used` / `@section` 这两个稳定属性名从 Swift 6.3 起才存在（SE-0492 的状态是
+  `Implemented (Swift 6.3)`），而 Xcode 26.3 自带的是 **Swift 6.2.3**（Swift 6.3 从
+  Xcode 26.4 起）。0.0.18 改用稳定名并移除实验特性开关后，在 Xcode ≤ 26.3 上会直接报
+  `error: unknown attribute 'used'` / `error: unknown attribute 'section'`。
+
+### 变更
+
+- 宏展开改为按编译器版本切换属性名：`#if compiler(>=6.3)` → `@used` / `@section`，
+  `#else` → `@_used` / `@_section`。两个分支写入的 section（`__DATA,__coo_sw_svc`）
+  与 8 × `UInt64` 定长编码完全一致，运行时解码与数据格式均无变化。
+- `Package.swift`：仅当编译器 < 6.3 时，才为 `CooOrchestrator` 与 `CooOrchestratorTests`
+  添加 `.enableExperimentalFeature("SymbolLinkageMarkers")`；6.3+ 不再携带该 flag。
+  **旧工具链上的使用方需在自己的 target 上添加该 flag**（见 README「旧工具链」小节）。
+- 单元测试补充回退分支断言：守护两个分支的属性名、section 名，以及成员声明必须留在
+  `#endif` 之后。
+
 ## [0.0.18] - 2026-10-08
 
 ### 修复

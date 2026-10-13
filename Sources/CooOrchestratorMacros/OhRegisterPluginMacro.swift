@@ -3,17 +3,32 @@
 // 文件功能描述：实现 @OrchPlugin 宏的具体逻辑，生成插件注册所需的代码。
 //
 // ---------------------------------------------------------------------------
-// 【生成策略（Swift ≥ 6.3）】
+// 【属性名按编译器版本切换】
+// 这两个 Section 属性只在 Swift 6.3 起才有正式名，旧工具链只有下划线实验名：
+//   - Swift ≥ 6.3（Xcode ≥ 26.4）：@used / @section
+//   - Swift ≤ 6.2（Xcode ≤ 26.3）：@_used / @_section，且**使用方 target** 必须
+//     开启 `-enable-experimental-feature SymbolLinkageMarkers`
+// 所以这里生成 `#if compiler(>=6.3)` 条件块（判编译器版本），两套工具链都能编译：
+//   - 6.3+ 走正式名分支，无非活动分支噪声（旧名仅在 6.3+ 会触发重命名警告）；
+//   - 6.2.x 走实验名分支，配合使用方的实验特性开关工作。
+//
+// 【编码策略（Swift ≥ 6.3 的常量求值限制）】
 // Swift 6.3 起，带 @section 的静态量初始化器必须能被编译期常量求值器求值，
 // 求值器只支持标量常量，旧的 `(StaticString)` 形态会直接编译失败：
 //   - Swift 6.4：error: unsupported type in a literal expression [const_unsupported_type]
 //   - Swift 6.3：error: unsupported type in a constant expression
 // 因此这里改为生成 8 个 UInt64 的整型字面量，把类名的 UTF-8 字节编码进
 // `__DATA,__coo_sw_svc` Section，运行时由库侧 `OhPluginSectionDecoder` 解码。
+// 该编码在 6.2.x 的实验实现下同样可被求值，所以两种工具链产出同一份格式。
 //
 // 生成的代码形如：
+//     #if compiler(>=6.3)
 //     @used
 //     @section("__DATA,__coo_sw_svc")
+//     #else
+//     @_used
+//     @_section("__DATA,__coo_sw_svc")
+//     #endif
 //     static let _coo_svc_entry: (UInt64, UInt64, ... , UInt64) = (
 //         0x424B532E754B6953, 0x6976726553746F6F, 0x0000000000006563, 0x0000000000000000,
 //         ...
@@ -74,8 +89,13 @@ public struct OhRegisterPluginMacro: MemberMacro {
 
         return [
             """
+            #if compiler(>=6.3)
             @used
             @section("\(raw: Self.sectionAttribute)")
+            #else
+            @_used
+            @_section("\(raw: Self.sectionAttribute)")
+            #endif
             static let _coo_svc_entry: \(raw: OhPluginSectionEncoder.tupleTypeSource) = (
             \(raw: OhPluginSectionEncoder.literalSource(words))
             )

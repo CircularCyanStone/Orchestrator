@@ -1,12 +1,15 @@
 # CooOrchestrator 使用指南
 
-> **版本提示（v0.0.18）**
+> **版本提示（v0.0.19）**
 >
 > - `@OrchPlugin` 宏在 Swift 6.3+ 上已改为**整型定长编码**（类名 → 8 × `UInt64` 写入
 >   `__DATA,__coo_sw_svc`），旧实现（`(StaticString)` 进 Section）在 6.3 / 6.4 上无法编译。
 >   详见 [方案一](#方案一orchplugin-宏推荐) 与 [CHANGELOG.md](../CHANGELOG.md)。
-> - 使用该宏的工程需要 **Swift 6.3+** 工具链，且不再需要
->   `-enable-experimental-feature SymbolLinkageMarkers`。
+> - 属性名随工具链版本自动切换（宏展开为 `#if compiler(>=6.3)` 双分支）：
+>   **Swift 6.3+（Xcode 26.4+）** 使用稳定名 `@used` / `@section`，无需任何额外设置；
+>   **Swift 6.2.x 及更早（Xcode ≤ 26.3）** 只有下划线实验名，使用该宏的 target
+>   必须自行开启 `-enable-experimental-feature SymbolLinkageMarkers`
+>   （详见 [方案一](#方案一orchplugin-宏推荐) 末尾的「旧工具链（Xcode ≤ 26.3）」）。
 > - 本文正文部分章节仍沿用早期的 `OhService` 命名，当前代码对应为 `OhPlugin`
 >   （即 `@OrchService` → `@OrchPlugin`、`OhRegistry` → `OhPluginRegistry`）。
 
@@ -327,7 +330,7 @@ class AppDelegate: OhAppDelegate {
 }
 ```
 
-#### Swift 6.3+ 的关键变更（v0.0.18）
+#### 属性名与 Section 编码（v0.0.18 / v0.0.19）
 
 Swift 6.3 起，带 `@section` 的静态量初始化器必须能被**编译期常量求值器**求值，而求值器只支持标量常量。
 旧实现把类名以 `(StaticString)` 写进 Section，因此在 6.3 / 6.4 上直接编译失败：
@@ -337,12 +340,17 @@ Swift 6.3 起，带 `@section` 的静态量初始化器必须能被**编译期�
 | Swift 6.4（Xcode 27） | `error: unsupported type in a literal expression [const_unsupported_type]` |
 | Swift 6.3（Xcode 26.6） | `error: unsupported type in a constant expression` |
 
-v0.0.18 起改为**整型定长编码**，并使用稳定属性名 `@used` / `@section`（不再是 `@_used` / `@_section`）。
+v0.0.18 起改为**整型定长编码**；属性名则按编译器版本切换（见下方「旧工具链（Xcode ≤ 26.3）」小节）。
 以 `@OrchPlugin("SiKu")` 标注 `SKBootService` 为例，宏展开为：
 
 ```swift
+#if compiler(>=6.3)
 @used
 @section("__DATA,__coo_sw_svc")
+#else
+@_used
+@_section("__DATA,__coo_sw_svc")
+#endif
 static let _coo_svc_entry: (UInt64, UInt64, UInt64, UInt64, UInt64, UInt64, UInt64, UInt64) = (
     0x424B532E754B6953, 0x6976726553746F6F, 0x0000000000006563, 0x0000000000000000,
     0x0000000000000000, 0x0000000000000000, 0x0000000000000000, 0x0000000000000000
@@ -364,11 +372,35 @@ static let _coo_svc_entry: (UInt64, UInt64, UInt64, UInt64, UInt64, UInt64, UInt
 
 **兼容性**
 
-- 使用 `@OrchPlugin` 的工程需要 **Swift 6.3+** 工具链，且**不再需要**
-  `-enable-experimental-feature SymbolLinkageMarkers`。
+- 属性名按编译器版本自动切换，包本身不再要求 Swift 6.3+：
+  - **Swift 6.3+（Xcode 26.4+）**：无需任何额外设置；
+  - **Swift 6.2.x 及更早（Xcode ≤ 26.3）**：`@used` / `@section` 尚不存在，宏会走
+    `@_used` / `@_section` 分支，使用该宏的 target 需按下方「旧工具链」小节添加开关。
 - **数据格式与 0.0.17 及更早不兼容**：升级后需要重新编译所有含 `@OrchPlugin` 的模块
   （源码依赖的正常构建即是如此），旧产物不会被识别。
 - `@OrchPlugin` 的公开签名未变，使用方只升级依赖版本即可，代码无需改动。
+
+#### 旧工具链（Xcode ≤ 26.3）
+
+`@used` / `@section` 从 Swift 6.3 起才存在（SE-0492 的状态即 `Implemented (Swift 6.3)`），
+而 **Xcode 26.3 自带的是 Swift 6.2.3**（Swift 6.3 从 Xcode 26.4 开始）。旧工具链上这两个名字
+会被当成未知属性：
+
+| 写法 | Swift 6.2.x（Xcode ≤ 26.3） | Swift 6.3+（Xcode 26.4+） |
+|------|------------------------------|----------------------------|
+| `@used` / `@section` | ❌ `error: unknown attribute 'used'` / `'section'` | ✅ |
+| `@_used` / `@_section` | ❌ `attribute requires '-enable-experimental-feature SymbolLinkageMarkers'` | ⚠️ 可用，但输出重命名警告 |
+| `@_used` / `@_section` + 该实验特性 | ✅ | ✅（该 flag 被忽略，无诊断） |
+
+宏已展开为 `#if compiler(>=6.3)` 双分支，所以包本身两边都能编译；旧工具链上唯一要做的是
+在**使用方自己的 target** 上加开关 —— 只加在本包 target 上不够，因为宏展开发生在使用方的目标里：
+
+| 集成方式 | 需要添加的设置 |
+|----------|----------------|
+| Swift Package Manager | `swiftSettings: [.enableExperimentalFeature("SymbolLinkageMarkers")]` |
+| Xcode 工程 | `OTHER_SWIFT_FLAGS = -enable-experimental-feature SymbolLinkageMarkers` |
+
+凡是"展开了 `@OrchPlugin` 的 target"都要加（包括测试 target）。
 
 ---
 
